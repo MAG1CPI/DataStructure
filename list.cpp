@@ -52,7 +52,7 @@ public:
     List<T> &PopFront();
     List<T> &PopBack();
     List<T> &Erase(int index);
-    List<T> &Remove(const T& val);
+    List<T> &Remove(const T &val);
     List<T> &Unique();
     List<T> &Clear();
     // 改
@@ -109,16 +109,16 @@ List<T>::List(T source[], int begin, int end)
     size_ = end - begin;
     if (size_)
     {
-        Node<T> *prev_node = nullptr, *new_node = nullptr;
-        front_ = prev_node = new Node<T>(source[begin]);
+        Node<T> *new_node = nullptr;
+
+        front_ = rear_ = new Node<T>(source[begin]);
         for (int i = begin + 1; i < end; i++)
         {
             new_node = new Node<T>(source[i]);
-            prev_node->next = new_node;
-            new_node->prev = prev_node;
-            prev_node = prev_node->next;
+            rear_->next = new_node;
+            new_node->prev = rear_;
+            rear_ = rear_->next;
         }
-        rear_ = prev_node;
     }
     else
         front_ = rear_ = nullptr;
@@ -130,19 +130,20 @@ List<T>::List(const List &source)
     size_ = source.size_;
     if (size_)
     {
-        Node<T> *prev_node = nullptr, *new_node = nullptr;
+        Node<T> *new_node = nullptr;
         Node<T> *source_node = source.front_;
-        front_ = prev_node = new Node<T>(source_node->data);
+
+        front_ = rear_ = new Node<T>(source_node->data);
         source_node = source_node->next;
+
         while (source_node)
         {
             new_node = new Node<T>(source_node->data);
-            prev_node->next = new_node;
-            new_node->prev = prev_node;
-            prev_node = prev_node->next;
+            rear_->next = new_node;
+            new_node->prev = rear_;
+            rear_ = rear_->next;
             source_node = source_node->next;
         }
-        rear_ = prev_node;
     }
     else
         front_ = rear_ = nullptr;
@@ -225,6 +226,7 @@ List<T> &List<T>::Insert(int position, const T &data)
 {
     if (position < -size_ - 1 || position > size_)
         throw OutOfRange(position, size_);
+
     Node<T> *new_node = new Node<T>(data);
     Node<T> *pos = nullptr;
     if (size_)
@@ -283,6 +285,7 @@ List<T> &List<T>::PopFront()
 {
     if (size_ == 0)
         throw OutOfRange();
+
     Node<T> *old_node = front_;
     front_ = front_->next;
     if (size_ > 1)
@@ -299,6 +302,7 @@ List<T> &List<T>::PopBack()
 {
     if (size_ == 0)
         throw OutOfRange();
+
     Node<T> *old_node = rear_;
     rear_ = rear_->prev;
     if (size_ > 1)
@@ -341,7 +345,7 @@ List<T> &List<T>::Erase(int index)
 }
 
 template <class T>
-List<T> &List<T>::Remove(const T& val)
+List<T> &List<T>::Remove(const T &val)
 {
     Node<T> *old_node = nullptr;
     //删除开始时相同
@@ -464,6 +468,8 @@ List<T> &List<T>::Sort()
 template <class T>
 List<T> &List<T>::Merge(List &other)
 {
+    if (this == &other)
+        return *this;
     if (other.size_ == 0)
     {
         return *this;
